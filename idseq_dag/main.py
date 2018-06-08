@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 import os
-import idseq_dag.util.s3
+import idseq_dag.util.files
 from idseq_dag.engine.pipeline_flow import PipelineFlow
 
 def main():

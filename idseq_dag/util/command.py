@@ -240,11 +240,11 @@ def execute(command,
                 return stdout
 
 
-def execute_command_with_output(command,
-                                progress_file=None,
-                                timeout=None,
-                                grace_period=None,
-                                merge_stderr=False):
+def execute_with_output(command,
+                        progress_file=None,
+                        timeout=None,
+                        grace_period=None,
+                        merge_stderr=False):
     return execute(
         command,
         progress_file,

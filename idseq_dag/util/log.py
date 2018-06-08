@@ -8,7 +8,7 @@ import idseq_dag.util.command as command
 print_lock = multiprocessing.RLock()
 
 
-def configure_logger(log_file):
+def configure(log_file):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
@@ -33,7 +33,7 @@ def upload_log_file(sample_s3_output_path, lock=threading.RLock()):
                                                        sample_s3_output_path))
 
 
-def write_to_log(message, warning=False, flush=True):
+def write(message, warning=False, flush=True):
     logger = logging.getLogger()
     with print_lock:
         if warning:

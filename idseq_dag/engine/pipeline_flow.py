@@ -6,7 +6,7 @@ import threading
 import traceback
 
 import idseq_dag
-import idseq_dag.util.s3
+import idseq_dag.util.files
 import idseq_dag.util.command as command
 from idseq_dag.engine.pipeline_step import PipelineStep
 
@@ -68,7 +68,7 @@ class PipelineFlow(object):
             covered_nodes.add(node_name)
             for file_name in nodes[node_name]:
                 s3_file = os.path.join(s3_path, file_name)
-                if not idseq_dag.util.s3.check_s3_presence(s3_file):
+                if not idseq_dag.util.files.check_s3_presence(s3_file):
                     raise ValueError("%s file doesn't exist" % s3_file)
         # Check that all nodes are covered
         # ALL Inputs Outputs VALIDATED
@@ -109,7 +109,7 @@ class PipelineFlow(object):
                     if step_can_be_run: # All the input is satisfied
                         steps_complete.add(step["out"])
                         file_list= self.nodes[step["out"]]
-                        if lazy_run and idseq_dag.util.s3.check_s3_presence_for_file_list(self.output_dir_s3, file_list):
+                        if lazy_run and idseq_dag.util.files.check_s3_presence_for_file_list(self.output_dir_s3, file_list):
                             # output can be lazily generated. touch the output
                             #idseq_dag.util.s3.touch_s3_file_list(self.output_dir_s3, file_list)
                             s3_downloadable = True
