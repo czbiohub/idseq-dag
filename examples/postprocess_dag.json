@@ -42,6 +42,14 @@
       "module": "idseq_dag.steps.generate_taxid_locator",
       "additional_files": {},
       "additional_attributes": {}
+    },
+    {
+      "in": [""],
+      "out": "",
+      "class": "PipelineStepGenerateAlignmentViz",
+      "module": "idseq_dag.steps.generate_alignment_viz",
+      "additional_files": {},
+      "additional_attributes": {}
     }
   ],
   "given_targets": {
