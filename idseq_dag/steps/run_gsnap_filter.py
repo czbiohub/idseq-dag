@@ -29,6 +29,13 @@ class PipelineStepRunGsnapFilter(PipelineStep):
                                    auto_untar=True)
         gsnap_base_dir = os.path.dirname(genome_dir)
         gsnap_index_name = os.path.basename(genome_dir)
+
+        # Debugging
+        command.execute("sync && echo 3 | tee /proc/sys/vm/drop_caches")
+        command.execute(f"cat {gsnap_index_name} > /dev/null")
+        for fa in input_fas:
+            command.execute(f"cat {fa} > /dev/null")
+
         # Run Gsnap
         gsnap_params = [
             'gsnapl', '-A sam', '--batch=0', '--use-shared-memory=0',
