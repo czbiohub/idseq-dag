@@ -1,5 +1,4 @@
 import json
-import sys
 import os
 import threading
 import time
@@ -9,6 +8,8 @@ from abc import abstractmethod
 from enum import IntEnum
 
 import idseq_dag.util.s3
+from idseq_dag.util.thread_with_result import ThreadWithResult
+
 
 class StepStatus(IntEnum):
     INITIALIZED = 0
@@ -72,13 +73,20 @@ class PipelineStep(object):
             command.execute("mkdir -p %s" % os.path.dirname(f))
 
     def uploading_results(self):
-        ''' Upload output files to s3 '''
-        files_to_upload = self.output_files_local() + self.additional_files_to_upload
-        for f in files_to_upload:
-            # upload to S3 - TODO(Boris): parallelize the following with better calls
+        """ Upload output files to s3 """
+        def upload_file(f):
             relative_path = os.path.relpath(f, self.output_dir_local)
             s3_path = os.path.join(self.output_dir_s3, relative_path)
-            idseq_dag.util.s3.upload_with_retries(f, s3_path)
+            idseq_dag.util.s3.upload(f, s3_path)
+
+        files_to_upload = self.output_files_local() + self.additional_files_to_upload
+        upload_threads = [
+            ThreadWithResult(
+                target=upload_file,
+                args=(f,)
+            ) for f in files_to_upload
+        ]
+        idseq_dag.util.thread_with_result.run_all(upload_threads)
         self.status = StepStatus.UPLOADED
 
     @staticmethod
