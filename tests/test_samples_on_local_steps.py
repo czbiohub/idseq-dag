@@ -37,22 +37,22 @@ class TestSamplesOnLocalSteps(unittest.TestCase):
             self.test_all_local_steps(dag_file, bundle, output_dir_s3)
 
     def test_all_local_steps(self, dag_file, test_bundle, output_dir_s3):
-        step_pairs = [
-            (PipelineStepRunStar, "star_out"),
-            (PipelineStepRunPriceSeq, "priceseq_out"),
-            (PipelineStepRunCDHitDup, "cdhitdup_out"),
-            (PipelineStepRunLZW, "lzw_out"),
-            (PipelineStepRunBowtie2, "bowtie2_out"),
-            (PipelineStepRunSubsample, "subsampled_out"),
-            (PipelineStepRunGsnapFilter, "gsnap_filter_out"),
-            (PipelineStepCombineTaxonCounts, "taxon_count_out"),
-            (PipelineStepGenerateAnnotatedFasta, "annotated_out"),
-            (PipelineStepGenerateTaxidFasta, "taxid_fasta_out"),
-            (PipelineStepGenerateTaxidLocator, "taxid_locator_out")]
-
-        for step_class, step_name in step_pairs:
-            test_utils.run_step_and_match_outputs(
-                step_class, step_name, dag_file, test_bundle, output_dir_s3)
+        # step_pairs = [
+        #     (PipelineStepRunStar, "star_out"),
+        #     (PipelineStepRunPriceSeq, "priceseq_out"),
+        #     (PipelineStepRunCDHitDup, "cdhitdup_out"),
+        #     (PipelineStepRunLZW, "lzw_out"),
+        #     (PipelineStepRunBowtie2, "bowtie2_out"),
+        #     (PipelineStepRunSubsample, "subsampled_out"),
+        #     (PipelineStepRunGsnapFilter, "gsnap_filter_out"),
+        #     (PipelineStepCombineTaxonCounts, "taxon_count_out"),
+        #     (PipelineStepGenerateAnnotatedFasta, "annotated_out"),
+        #     (PipelineStepGenerateTaxidFasta, "taxid_fasta_out"),
+        #     (PipelineStepGenerateTaxidLocator, "taxid_locator_out")]
+        #
+        # for step_class, step_name in step_pairs:
+        #     test_utils.run_step_and_match_outputs(
+        #         step_class, step_name, dag_file, test_bundle, output_dir_s3)
 
         test_utils.run_step_and_match_outputs(
             PipelineStepGenerateAlignmentViz, "alignment_viz_out", dag_file,

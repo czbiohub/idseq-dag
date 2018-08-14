@@ -166,8 +166,7 @@ class PipelineFlow(object):
 
         with open(local_count_file, 'w') as count_file:
             json.dump(counts_dict, count_file)
-        idseq_dag.util.s3.upload_with_retries(local_count_file, s3_count_file)
-
+        idseq_dag.util.s3.upload(local_count_file, s3_count_file)
 
     def fetch_target_from_s3(self, target):
         ''' .done file should be written to the result dir when the download is complete '''

@@ -146,7 +146,8 @@ def fetch_from_s3(src,
 
 
 def upload(from_f, to_f):
-    # Nested here because we only want functions calling upload
+    # Nested here because we only want functions calling upload but still want
+    # to use the decorator
     @command.retry
     def upload_with_retries(from_f, to_f):
         command.execute(f"aws s3 cp --only-show-errors {from_f} {to_f}")
