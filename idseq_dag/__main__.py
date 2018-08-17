@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
-import sys
+import io
 import os
-import idseq_dag.util.s3
+from contextlib import redirect_stdout
 import idseq_dag.util.log as log
 from idseq_dag.engine.pipeline_flow import PipelineFlow
 from idseq_dag import __version__
@@ -35,4 +34,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    f = io.StringIO()
+    with redirect_stdout(f):
+        print('foobar')
+        print(12)
+        main()
+    print('Got stdout: "{0}"'.format(f.getvalue()))

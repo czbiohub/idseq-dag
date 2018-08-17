@@ -220,7 +220,7 @@ def execute(command,
     """
     with CommandTracker() as ct:
         with log.print_lock:
-            log.write("Command {}: {}".format(ct.id, command))
+            log.write("Command {}: {}".format(ct.id, command), prev_caller=True)
         with ProgressFile(progress_file):
             if timeout:
                 ct.timeout = timeout
