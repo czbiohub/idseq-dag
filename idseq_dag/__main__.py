@@ -30,7 +30,12 @@ def main():
         parser.print_help()
         raise
     log.write("start executing the dag")
+    # f = io.StringIO()
+    # with redirect_stdout(f):
+    #     print('foobar2')
+    #     print(123)
     flow.start()
+    print('Got stdout2: "{0}"'.format(f.getvalue()))
 
 
 if __name__ == "__main__":

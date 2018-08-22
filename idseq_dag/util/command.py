@@ -73,6 +73,7 @@ class CommandTracker(Updater):
                 log.write(
                     "Command %d still postprocessing after %3.1f seconds." %
                     (self.id, t_elapsed))
+            print("potatoes")
             sys.stdout.flush()
         self.enforce_timeout(t_elapsed)
 
@@ -239,7 +240,10 @@ def execute(command,
                 stdout, _ = ct.proc.communicate()
             else:
                 # Capture nothing. Child inherits parent stdin/out/err.
-                ct.proc = subprocess.Popen(command, shell=True)
+                ct.proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+                with ct.proc as proc:
+                    for line in proc.stdout:
+                        log.write(line)
                 ct.proc.wait()
                 stdout = None
 

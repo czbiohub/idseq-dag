@@ -190,6 +190,7 @@ class PipelineFlow(object):
 
     def start(self):
         # Come up with the plan
+        command.execute("echo 'yo1' && sleep 10 && \n echo 'yo2' && sleep 10 && \n echo 'yo3'")
         (step_list, self.large_file_list, covered_targets) = self.plan()
 
         for step in step_list: # download the files from s3 when necessary
