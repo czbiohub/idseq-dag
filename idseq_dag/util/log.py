@@ -20,7 +20,7 @@ def configure_logger():
     logger.addHandler(handler)
 
 
-def write(message, level=logging.INFO, flush=True, prev_caller=False):
+def write(message, level=logging.INFO, flush=True, prev_caller_num=0):
     # Generate datetime timestamp. Keep all times in UTC, ISO 8601 format with
     # dashes and no microseconds. Include +00:00 offset.
     # Ex: "2018-08-17T18:45:42+00:00"
@@ -30,9 +30,10 @@ def write(message, level=logging.INFO, flush=True, prev_caller=False):
 
     # Get proper frame info to log caller info
     frame_number = 1
-    if prev_caller:
+    if prev_caller_num:
         # Use this to get the caller of command.execute for example.
-        frame_number = 2
+        # 1 means get the caller of the caller. 2 means 2 frames back, etc.
+        frame_number += prev_caller_num
     frame_info = inspect.stack()[frame_number]
     file_name = os.path.basename(frame_info.filename)
     module_name = os.path.splitext(file_name)[0]

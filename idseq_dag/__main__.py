@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import io
 import os
-from contextlib import redirect_stdout
 import idseq_dag.util.log as log
 from idseq_dag.engine.pipeline_flow import PipelineFlow
 from idseq_dag import __version__
@@ -30,18 +28,8 @@ def main():
         parser.print_help()
         raise
     log.write("start executing the dag")
-    # f = io.StringIO()
-    # with redirect_stdout(f):
-    #     print('foobar2')
-    #     print(123)
     flow.start()
-    print('Got stdout2: "{0}"'.format(f.getvalue()))
 
 
 if __name__ == "__main__":
-    f = io.StringIO()
-    with redirect_stdout(f):
-        print('foobar')
-        print(12)
-        main()
-    print('Got stdout: "{0}"'.format(f.getvalue()))
+    main()

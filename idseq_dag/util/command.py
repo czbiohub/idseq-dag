@@ -73,7 +73,6 @@ class CommandTracker(Updater):
                 log.write(
                     "Command %d still postprocessing after %3.1f seconds." %
                     (self.id, t_elapsed))
-            print("potatoes")
             sys.stdout.flush()
         self.enforce_timeout(t_elapsed)
 
@@ -217,11 +216,11 @@ def execute(command,
             capture_stdout=False,
             merge_stderr=False):
     """Primary way to start external commands in subprocesses and handle
-    execution with logging.
+    execution with logging. Calls are blocking.
     """
     with CommandTracker() as ct:
         with log.print_lock:
-            log.write("Command {}: {}".format(ct.id, command), prev_caller=True)
+            log.write("Command {}: {}".format(ct.id, command), prev_caller_num=1)
         with ProgressFile(progress_file):
             if timeout:
                 ct.timeout = timeout
@@ -230,20 +229,35 @@ def execute(command,
             if capture_stdout:
                 # Capture only stdout. Child stderr = parent stderr unless
                 # merge_stderr specified. Child input = parent stdin.
+                if merge_stderr:
+                    stderr = subprocess.STDOUT
+                else:
+                    stderr = sys.stderr.fileno()
                 ct.proc = subprocess.Popen(
                     command,
                     shell=True,
                     stdin=sys.stdin.fileno(),
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT
-                    if merge_stderr else sys.stderr.fileno())
-                stdout, _ = ct.proc.communicate()
-            else:
-                # Capture nothing. Child inherits parent stdin/out/err.
-                ct.proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+                    stderr=stderr,
+                    universal_newlines=True
+                )
+                # Send stdout through the logger as available.
+                buff = ""
                 with ct.proc as proc:
                     for line in proc.stdout:
-                        log.write(line)
+                        log.write(line, prev_caller_num=2)
+                        buff += line
+                        print("potato")
+                ct.proc.wait()
+                stdout = buff
+                print("STDOUT WAS: " + stdout)
+            else:
+                # Capture nothing. Child inherits parent stdin/out/err.
+                ct.proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+                # Send stdout through the logger as available.
+                with ct.proc as proc:
+                    for line in proc.stdout:
+                        log.write(line, prev_caller_num=1)
                 ct.proc.wait()
                 stdout = None
 
