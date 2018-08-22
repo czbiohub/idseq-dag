@@ -4,6 +4,7 @@ import logging
 import multiprocessing
 import os
 import sys
+import json
 
 print_lock = multiprocessing.RLock()
 
@@ -53,7 +54,7 @@ def configure_logger():
     # sys.stderr = sl
 
 
-def write(message, level=logging.INFO, flush=True, prev_caller_num=0):
+def write(message, level=logging.INFO, prev_caller_num=0):
     # Generate datetime timestamp. Keep all times in UTC, ISO 8601 format with
     # dashes and no microseconds. Include +00:00 offset.
     # Ex: "2018-08-17T18:45:42+00:00"
@@ -77,7 +78,9 @@ def write(message, level=logging.INFO, flush=True, prev_caller_num=0):
 
     logger = logging.getLogger()
     with print_lock:
-        logger.info(f"{timestamp} {level} {module_name}.{function_name}:{line_num}: {message}")
+        # logger.info(f"{timestamp} {level} {module_name}.{function_name}:{line_num}: {message}")
+        info = {"time": timestamp, "level": level, "module": module_name, "function": function_name, "line": line_num, "msg": message}
+        logger.info(json.dumps(info))
 
 
 def set_up_stdout():
