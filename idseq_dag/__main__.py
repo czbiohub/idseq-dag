@@ -4,6 +4,7 @@ import argparse
 import os
 import idseq_dag.util.log as log
 from idseq_dag.engine.pipeline_flow import PipelineFlow
+import idseq_dag.util.command as command
 from idseq_dag import __version__
 
 log.configure_logger()

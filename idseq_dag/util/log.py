@@ -8,16 +8,49 @@ import sys
 print_lock = multiprocessing.RLock()
 
 
+class StreamToLogger(object):
+    """Fake file-like stream object that redirects writes to a logger instance.
+    """
+    def __init__(self, logger, log_level=logging.INFO):
+        self.logger = logger
+        self.log_level = log_level
+        self.linebuf = ''
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.log_level, line.rstrip())
+
+    def flush(self):
+        pass
+
+
 def configure_logger():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
     # Echo to stdout so they get to CloudWatch
+    # handler = logging.StreamHandler(sys.stdout)
+    # handler.setLevel(logging.INFO)
+    # formatter = logging.Formatter("test %(message)s")
+    # handler.setFormatter(formatter)
+    # logger.addHandler(handler)
+
+    # Direct stdout and stderr to the logger
+    stdout_logger = logging.getLogger()
+    # formatter = logging.Formatter("stdout: %(message)s")
     handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter("test %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    # handler.setFormatter(formatter)
+    stdout_logger.addHandler(handler)
+    sl = StreamToLogger(stdout_logger, logging.INFO)
+    sys.stdout = sl
+
+    # stderr_logger = logging.getLogger('STDERR')
+    # sl = StreamToLogger(stderr_logger, logging.ERROR)
+    # formatter = logging.Formatter("stderr: %(message)s")
+    # handler = logging.StreamHandler(sys.stderr)
+    # handler.setFormatter(formatter)
+    # stderr_logger.addHandler(handler)
+    # sys.stderr = sl
 
 
 def write(message, level=logging.INFO, flush=True, prev_caller_num=0):
@@ -45,8 +78,6 @@ def write(message, level=logging.INFO, flush=True, prev_caller_num=0):
     logger = logging.getLogger()
     with print_lock:
         logger.info(f"{timestamp} {level} {module_name}.{function_name}:{line_num}: {message}")
-        if flush:
-            sys.stdout.flush()
 
 
 def set_up_stdout():

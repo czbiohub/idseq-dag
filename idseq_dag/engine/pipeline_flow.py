@@ -39,7 +39,7 @@ class PipelineFlow(object):
         return ".".join(version.split(".")[0:2])
 
     def prefetch_large_files(self):
-        log.write("downloading large files: %s" % ",".join(self.large_file_list))
+        log.write("downloading large files: %s" % ", ".join(self.large_file_list))
         for f in self.large_file_list:
             log.write("downloading %s" % f)
             idseq_dag.util.s3.fetch_from_s3(f, self.ref_dir_local, allow_s3mi=True, auto_untar=True)
@@ -56,7 +56,6 @@ class PipelineFlow(object):
 
         '''
         dag = json.loads(open(dag_json).read())
-        output_dir = dag["output_dir_s3"]
         targets = dag["targets"]
         steps = dag["steps"]
         given_targets = dag["given_targets"]
@@ -190,8 +189,8 @@ class PipelineFlow(object):
 
     def start(self):
         # Come up with the plan
-        command.execute("echo 'yo1' && sleep 10 && \n echo 'yo2' && sleep 10 && \n echo 'yo3'")
-        command.execute_with_output("echo 'yo1 output' && sleep 10 && \n echo 'yo2' && sleep 10 && \n echo 'yo3'")
+        command.execute("echo 'yo1' && sleep 1 && echo 'yo2' && sleep 1 && echo 'yo3'")
+        command.execute_with_output("echo 'yo1 output' && sleep 1 && echo 'yo2' && sleep 1 && echo 'yo3'")
         (step_list, self.large_file_list, covered_targets) = self.plan()
 
         for step in step_list: # download the files from s3 when necessary
@@ -222,7 +221,7 @@ class PipelineFlow(object):
                 step.wait_until_all_done()
             except Exception as e:
                 # Some exception thrown by one of the steps
-                traceback.print_exc()
+                traceback.print_exc(file=sys.stdout)
                 for s in step_instances:
                     # notify the waiting step instances to self destruct
                     s.stop_waiting()

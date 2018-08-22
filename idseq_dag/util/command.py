@@ -73,7 +73,6 @@ class CommandTracker(Updater):
                 log.write(
                     "Command %d still postprocessing after %3.1f seconds." %
                     (self.id, t_elapsed))
-            sys.stdout.flush()
         self.enforce_timeout(t_elapsed)
 
     def enforce_timeout(self, t_elapsed):
@@ -91,7 +90,6 @@ class CommandTracker(Updater):
                 msg = "Command %d has exceeded timeout of %3.1f seconds. " \
                       "Sending SIGTERM." % (self.id, self.timeout)
                 log.write(msg)
-                sys.stdout.flush()
             self.t_sigterm_sent = time.time()
             self.proc.terminate()
         elif not self.t_sigkill_sent:
@@ -101,7 +99,6 @@ class CommandTracker(Updater):
                     msg = "Command %d still alive %3.1f seconds after " \
                           "SIGTERM. Sending SIGKILL." % (self.id, time.time() - self.t_sigterm_sent)
                     log.write(msg)
-                    sys.stdout.flush()
                 self.t_sigkill_sent = time.time()
                 self.proc.kill()
         else:
@@ -109,7 +106,6 @@ class CommandTracker(Updater):
                 msg = "Command %d still alive %3.1f seconds after " \
                       "SIGKILL." % (self.id, time.time() - self.t_sigkill_sent)
                 log.write(msg)
-                sys.stdout.flush()
 
 
 class ProgressFile(object):
@@ -218,9 +214,13 @@ def execute(command,
     """Primary way to start external commands in subprocesses and handle
     execution with logging. Calls are blocking.
     """
+    prev_caller_num = 1
+    if capture_stdout:
+        prev_caller_num = 2
+
     with CommandTracker() as ct:
         with log.print_lock:
-            log.write("Command {}: {}".format(ct.id, command), prev_caller_num=1)
+            log.write("Command {}: {}".format(ct.id, command), prev_caller_num=prev_caller_num)
         with ProgressFile(progress_file):
             if timeout:
                 ct.timeout = timeout
@@ -229,35 +229,24 @@ def execute(command,
             if capture_stdout:
                 # Capture only stdout. Child stderr = parent stderr unless
                 # merge_stderr specified. Child input = parent stdin.
-                if merge_stderr:
-                    stderr = subprocess.STDOUT
-                else:
-                    stderr = sys.stderr.fileno()
+                # if merge_stderr:
+                #     stderr = subprocess.STDOUT
                 ct.proc = subprocess.Popen(
                     command,
                     shell=True,
                     stdin=sys.stdin.fileno(),
-                    stdout=subprocess.PIPE,
-                    stderr=stderr,
-                    universal_newlines=True
+                    stdout=subprocess.PIPE
                 )
-                # Send stdout through the logger as available.
-                buff = ""
-                with ct.proc as proc:
-                    for line in proc.stdout:
-                        log.write(line, prev_caller_num=2)
-                        buff += line
-                        print("potato")
-                ct.proc.wait()
-                stdout = buff
-                print("STDOUT WAS: " + stdout)
+                stdout, _ = ct.proc.communicate()
             else:
                 # Capture nothing. Child inherits parent stdin/out/err.
-                ct.proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+                ct.proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
                 # Send stdout through the logger as available.
                 with ct.proc as proc:
                     for line in proc.stdout:
-                        log.write(line, prev_caller_num=1)
+                        log.write(line.strip(), prev_caller_num=prev_caller_num)
+                    for line in proc.stderr:
+                        log.write(line.strip(), prev_caller_num=prev_caller_num)
                 ct.proc.wait()
                 stdout = None
 
@@ -279,7 +268,7 @@ def execute_with_output(command,
         timeout,
         grace_period,
         capture_stdout=True,
-        merge_stderr=merge_stderr).decode('utf-8')
+        merge_stderr=merge_stderr).decode("utf-8")
 
 
 def scp(key_path, remote_username, instance_ip, remote_path, local_path):

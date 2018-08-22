@@ -16,8 +16,10 @@ IOSTREAM = multiprocessing.Semaphore(MAX_CONCURRENT_COPY_OPERATIONS)
 MAX_CONCURRENT_UPLOAD_OPERATIONS = 4
 IOSTREAM_UPLOADS = multiprocessing.Semaphore(MAX_CONCURRENT_UPLOAD_OPERATIONS)
 
+
 def split_identifiers(s3_path):
     return s3_path[5:].split("/", 1)
+
 
 def check_s3_presence(s3_path):
     """True if s3_path exists. False otherwise."""
