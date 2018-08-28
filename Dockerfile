@@ -75,14 +75,14 @@ RUN pip3 install awscli-cwlogs==1.4.0 keymaker==0.2.1 boto3==1.4.3 awscli==1.11.
 RUN apt-get install -y iptables-persistent debian-goodies bridge-utils pixz cryptsetup-bin mdadm btrfs-tools libffi-dev libssl-dev libxml2-dev libxslt1-dev libyaml-dev libcurl4-openssl-dev libjemalloc-dev libzip-dev libsnappy-dev liblz4-dev libgmp-dev libmpfr-dev libhts-dev libsqlite3-dev libncurses5-dev htop pydf jq httpie python-dev python-cffi python-pip python-setuptools python-wheel python-virtualenv python-requests python-yaml python3-dev python3-cffi python3-pip python3-setuptools python3-wheel python3-requests python3-yaml nfs-common unzip build-essential cmake libtool autoconf ruby sysstat dstat numactl gdebi-core sqlite3 stunnel moreutils curl wget git aria2 sift
 RUN apt-get install -y bsdtar
 
-# For de-novo assembly
-WORKDIR /tmp/spades_build
-RUN git clone https://github.com/ablab/spades.git
-WORKDIR /tmp/spades_build/spades
-RUN git checkout spades_3.11.0
-WORKDIR /tmp/spades_build/spades/assembler
-RUN PREFIX=/usr/local ./spades_compile.sh
-RUN /usr/local/bin/spades.py --test
+# # For de-novo assembly
+# WORKDIR /tmp/spades_build
+# RUN git clone https://github.com/ablab/spades.git
+# WORKDIR /tmp/spades_build/spades
+# RUN git checkout spades_3.11.0
+# WORKDIR /tmp/spades_build/spades/assembler
+# RUN PREFIX=/usr/local ./spades_compile.sh
+# RUN /usr/local/bin/spades.py --test
 
 WORKDIR /tmp
 # Compile and install gmap/gsnap
